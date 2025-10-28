@@ -1,2 +1,5 @@
 # codingChallenges
-Page for learning JS, TS and coding challenges
+
+Page for learning JS, TS and coding challenges.
+
+
