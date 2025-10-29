@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <!--
+        Główna strona projektu Code Challenges
+        Zawiera strukturę bazową i odwołania do zasobów współdzielonych.
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Challenges</title>
+    <!-- Główny arkusz stylów dla całego projektu -->
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <!-- Panel boczny z nawigacją do podstron -->
+            <h1>Code Challenges</h1>
+            <p>Wybierz kategorię, aby otworzyć odpowiednie wyzwania.</p>
+            <nav class="nav-links" aria-label="Nawigacja po kategoriach">
+                <a href="pages/strings.html">Strings</a>
+                <a href="pages/arrays.html">Arrays</a>
+                <a href="pages/functions.html">Functions</a>
+            </nav>
+        </aside>
+
+        <main>
+            <!-- Sekcja powitalna -->
+            <section class="section" aria-labelledby="intro-title">
+                <h2 id="intro-title">Witaj w Code Challenges</h2>
+                <p>
+                    Ta strona jest punktem startowym do pracy nad zadaniami programistycznymi.
+                    Skorzystaj z nawigacji w panelu bocznym, aby przejść do wybranych kategorii
+                    oraz wykorzystaj poniższe pola do sporządzania notatek i szkicowania kodu.
+                </p>
+            </section>
+
+            <!-- Sekcja notatek -->
+            <section class="section" aria-labelledby="notes-title">
+                <h2 id="notes-title">Notatki</h2>
+                <p>Utrwal pomysły, spostrzeżenia i plan działania przed implementacją.</p>
+                <label for="notes-area" class="visually-hidden">Pole do notatek</label>
+                <textarea id="notes-area" name="notes" placeholder="Zapisz swoje notatki tutaj..."></textarea>
+            </section>
+
+            <!-- Sekcja szkicu kodu -->
+            <section class="section" aria-labelledby="code-title">
+                <h2 id="code-title">Szkic kodu</h2>
+                <p>
+                    Użyj pola edytora, aby naszkicować rozwiązania lub przykłady kodu przed właściwą implementacją.
+                    Zastosowano czcionkę monospace, by ułatwić czytelność struktury kodu.
+                </p>
+                <!-- contenteditable pozwala na swobodną edycję, przypomina bogatszy edytor kodu -->
+                <div id="code-editor" class="code-editor" contenteditable="true" spellcheck="false">
+// Rozpocznij pisanie kodu tutaj
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

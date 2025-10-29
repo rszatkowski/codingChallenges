@@ -1,0 +1,138 @@
+/*
+ * Global styles for the Code Challenges site
+ * The layout uses a responsive two-column grid for the sidebar and main content.
+ */
+
+:root {
+    /* Color palette chosen for clarity and sufficient contrast */
+    --background-color: #f5f7fb;
+    --panel-color: #ffffff;
+    --accent-color: #4c6ef5;
+    --accent-color-light: #748ffc;
+    --text-color: #1f2d3d;
+    --border-color: #dce1f4;
+    --code-background: #1e1e2f;
+    --code-text-color: #f8f9ff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: var(--panel-color);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--accent-color);
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+    background-color: var(--accent-color-light);
+    color: #ffffff;
+}
+
+main {
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section {
+    background-color: var(--panel-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(76, 110, 245, 0.08);
+}
+
+.section h2 {
+    margin-top: 0;
+}
+
+textarea,
+.code-editor {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    padding: 0.75rem;
+    background-color: #fbfcff;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+textarea {
+    min-height: 180px;
+}
+
+.code-editor {
+    min-height: 220px;
+    font-family: "Fira Code", "Source Code Pro", Consolas, "Courier New", monospace;
+    background-color: var(--code-background);
+    color: var(--code-text-color);
+    border: none;
+}
+
+.code-editor:focus {
+    outline: 2px solid var(--accent-color);
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
