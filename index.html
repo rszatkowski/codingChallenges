@@ -10,30 +10,37 @@
     <title>Code Challenges</title>
     <!-- Main stylesheet for the entire project -->
     <link rel="stylesheet" href="assets/css/main.css">
+    <script src="assets/js/challenges-data.js" defer></script>
+    <script src="assets/js/tabs.js" defer></script>
 </head>
 <body>
     <div class="layout">
         <aside class="sidebar">
-            <!-- Sidebar with navigation to subpages -->
+            <!-- Sidebar with tab navigation for categories -->
             <h1>Code Challenges</h1>
-            <p>Choose a category to explore specific challenges.</p>
-            <nav class="nav-links" aria-label="Category navigation">
-                <a href="pages/strings.html">Strings</a>
-                <a href="pages/arrays.html">Arrays</a>
-                <a href="pages/functions.html">Functions</a>
+            <p>Select a category to see curated practice ideas and starter tips.</p>
+            <nav class="nav-links" aria-label="Challenge categories" role="tablist" aria-orientation="vertical" data-tablist>
+                <!-- Tabs are rendered dynamically by tabs.js -->
             </nav>
         </aside>
 
         <main>
             <!-- Welcome section -->
-            <section class="section" aria-labelledby="intro-title">
+            <section class="section" aria-labelledby="intro-title" data-show-tab="home">
                 <h2 id="intro-title">Welcome to Code Challenges</h2>
                 <p>
-                    This page is the starting point for working on programming challenges with using JavaScript and TypeScript.
-                    </p>
-                        Use the sidebar navigatian to explore different categories of challenges.
-                    </p>
+                    This workspace helps you practice algorithms and language features across a range of JavaScript and TypeScript challenges.
                 </p>
+                <p>
+                    Use the category tabs in the sidebar to switch between themes, then explore the suggestions and notes inside each panel to kick-start your approach.
+                </p>
+            </section>
+
+            <section class="section" aria-labelledby="categories-title">
+                <h2 id="categories-title">Explore challenges by category</h2>
+                <div class="tabs" data-tab-panels>
+                    <!-- Tab panels are rendered dynamically by tabs.js -->
+                </div>
             </section>
         </main>
     </div>
