@@ -1,14 +1,13 @@
 import { sections } from "./data/sections.js";
-import { pagesById } from "./pages/index.js";
+import { contentBySection } from "./content/index.js";
+import { simulationBySection } from "./tests/index.js";
 
 const navElement = document.querySelector("#section-nav");
 const contentElement = document.querySelector("#section-content");
 
-// Store text area values per section so switching tabs does not wipe notes.
-const workspaceState = new Map();
+const practiceState = new Map();
 let activeSectionId = sections[0]?.id ?? null;
 
-// Build a navigation button for the left sidebar.
 function createSectionButton(section) {
   const button = document.createElement("button");
   button.type = "button";
@@ -33,7 +32,6 @@ function createSectionButton(section) {
   return button;
 }
 
-// Refresh the navigation to highlight the active section.
 function renderNavigation() {
   navElement.innerHTML = "";
   const fragment = document.createDocumentFragment();
@@ -46,46 +44,129 @@ function renderNavigation() {
   navElement.appendChild(fragment);
 }
 
-// Create the main workspace area with a single text field.
-function renderWorkspace(sectionId, pageConfig) {
-  const textareaId = `${sectionId}-workspace`;
-  const storedValue = workspaceState.get(sectionId) ?? "";
-
-  const card = document.createElement("section");
-  card.className = "workspace-card";
-
-  if (pageConfig.summary) {
-    const summary = document.createElement("p");
-    summary.className = "workspace-summary";
-    summary.textContent = pageConfig.summary;
-    card.appendChild(summary);
+function renderNotes(notes = []) {
+  if (!notes.length) {
+    return null;
   }
 
-  const label = document.createElement("label");
-  label.setAttribute("for", textareaId);
-  label.textContent = "Workspace";
-  card.appendChild(label);
+  const fragment = document.createDocumentFragment();
 
-  const textarea = document.createElement("textarea");
-  textarea.id = textareaId;
-  textarea.placeholder = pageConfig.placeholder ?? "Start typing notes or snippets here.";
-  textarea.value = storedValue;
-  textarea.addEventListener("input", (event) => {
-    workspaceState.set(sectionId, event.target.value);
-  });
-  card.appendChild(textarea);
+  for (const note of notes) {
+    const card = document.createElement("article");
+    card.className = "note-card";
 
-  return card;
+    const title = document.createElement("h3");
+    title.textContent = note.title;
+    card.appendChild(title);
+
+    const list = document.createElement("ul");
+    for (const item of note.items) {
+      const listItem = document.createElement("li");
+      listItem.textContent = item;
+      list.appendChild(listItem);
+    }
+
+    card.appendChild(list);
+    fragment.appendChild(card);
+  }
+
+  return fragment;
 }
 
-// Render the currently active section content.
+function renderExercise(exercise) {
+  if (!exercise) {
+    return null;
+  }
+
+  const wrapper = document.createElement("article");
+  wrapper.className = "exercise-card";
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Exercise";
+  wrapper.appendChild(heading);
+
+  const prompt = document.createElement("p");
+  prompt.textContent = exercise.prompt;
+  wrapper.appendChild(prompt);
+
+  const code = document.createElement("pre");
+  code.className = "code-snippet";
+  code.textContent = exercise.starterCode.trim();
+  wrapper.appendChild(code);
+
+  return wrapper;
+}
+
+function renderPractice(sectionId) {
+  const wrapper = document.createElement("article");
+  wrapper.className = "practice-card";
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Practice scratchpad";
+  wrapper.appendChild(heading);
+
+  const description = document.createElement("p");
+  description.textContent =
+    "Type anything you want to experiment with. Use the Run button to preview a simple simulation.";
+  wrapper.appendChild(description);
+
+  const textarea = document.createElement("textarea");
+  const existingState = practiceState.get(sectionId);
+  textarea.value = existingState?.input ?? "";
+  wrapper.appendChild(textarea);
+
+  const actions = document.createElement("div");
+  actions.className = "practice-actions";
+
+  const runButton = document.createElement("button");
+  runButton.type = "button";
+  runButton.textContent = "Run";
+  actions.appendChild(runButton);
+
+  const resetButton = document.createElement("button");
+  resetButton.type = "button";
+  resetButton.textContent = "Reset";
+  actions.appendChild(resetButton);
+
+  wrapper.appendChild(actions);
+
+  const output = document.createElement("div");
+  output.className = "practice-output";
+  output.textContent = existingState?.output ?? "";
+  wrapper.appendChild(output);
+
+  runButton.addEventListener("click", () => {
+    const inputValue = textarea.value.trim();
+    const simulator = simulationBySection[sectionId];
+    const result = simulator ? simulator(inputValue) : "No simulation available yet.";
+
+    practiceState.set(sectionId, {
+      input: textarea.value,
+      output: result,
+    });
+
+    output.textContent = result;
+  });
+
+  resetButton.addEventListener("click", () => {
+    textarea.value = "";
+    output.textContent = "";
+    practiceState.set(sectionId, {
+      input: "",
+      output: "",
+    });
+  });
+
+  return wrapper;
+}
+
 function renderSection(sectionId) {
   const section = sections.find((item) => item.id === sectionId);
-  const pageConfig = pagesById[sectionId];
+  const content = contentBySection[sectionId];
 
   contentElement.innerHTML = "";
 
-  if (!section || !pageConfig) {
+  if (!section || !content) {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "empty-state";
     emptyMessage.textContent = "Select a topic from the navigation to get started.";
@@ -100,10 +181,26 @@ function renderSection(sectionId) {
   title.textContent = section.title;
   header.appendChild(title);
 
+  const description = document.createElement("p");
+  description.textContent = section.description;
+  header.appendChild(description);
+
   contentElement.appendChild(header);
 
-  const workspace = renderWorkspace(sectionId, pageConfig);
-  contentElement.appendChild(workspace);
+  const notesFragment = renderNotes(content.notes);
+  if (notesFragment) {
+    const notesContainer = document.createElement("section");
+    notesContainer.appendChild(notesFragment);
+    contentElement.appendChild(notesContainer);
+  }
+
+  const exerciseCard = renderExercise(content.exercise);
+  if (exerciseCard) {
+    contentElement.appendChild(exerciseCard);
+  }
+
+  const practiceCard = renderPractice(sectionId);
+  contentElement.appendChild(practiceCard);
 }
 
 function init() {
