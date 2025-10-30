@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tablist = document.querySelector('[role="tablist"][data-tablist]');
     const panelsHost = document.querySelector("[data-tab-panels]");
+    const testsHost = document.querySelector("[data-tests-panels]");
+    const testsContainerSection = testsHost ? testsHost.closest(".section--tests") : null;
 
     if (!tablist || !panelsHost) {
         console.warn("Tab containers missing from the DOM.");
@@ -18,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const navFragment = document.createDocumentFragment();
     const panelsFragment = document.createDocumentFragment();
+    const testsSections = new Map();
+    const renderFunctionTests =
+        typeof window.renderFunctionTests === "function" ? window.renderFunctionTests : null;
 
     categories.forEach((category, index) => {
         const key = category.key;
@@ -62,9 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
             panel.hidden = true;
         }
 
+        const overview = document.createElement("section");
+        overview.className = "category-overview";
+        panel.appendChild(overview);
+
         const heading = document.createElement("h3");
         heading.textContent = category.heading || label;
-        panel.appendChild(heading);
+        overview.appendChild(heading);
 
         const descriptions = Array.isArray(category.description)
             ? category.description
@@ -74,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .forEach((paragraph) => {
                 const p = document.createElement("p");
                 p.textContent = paragraph;
-                panel.appendChild(p);
+                overview.appendChild(p);
             });
 
         if (Array.isArray(category.tasks) && category.tasks.length) {
@@ -86,7 +95,85 @@ document.addEventListener("DOMContentLoaded", () => {
                     item.textContent = task;
                     list.appendChild(item);
                 });
-            panel.appendChild(list);
+            overview.appendChild(list);
+        }
+
+        const rawNotes = Array.isArray(category.notes)
+            ? category.notes
+            : category.notes
+            ? [category.notes]
+            : [];
+
+        const notes = rawNotes
+            .map((note) => {
+                if (!note) {
+                    return null;
+                }
+                if (typeof note === "string") {
+                    return { text: note };
+                }
+                if (typeof note === "object") {
+                    const entry = {
+                        text: typeof note.text === "string" ? note.text : "",
+                        code: typeof note.code === "string" ? note.code : "",
+                        language: typeof note.language === "string" ? note.language.trim() : ""
+                    };
+                    if (entry.text || entry.code) {
+                        return entry;
+                    }
+                }
+                return null;
+            })
+            .filter(Boolean);
+
+        if (notes.length) {
+            const notesSection = document.createElement("section");
+            notesSection.className = "category-notes";
+
+            const notesHeading = document.createElement("h4");
+            notesHeading.className = "category-notes__heading";
+            notesHeading.textContent = "Notes";
+            notesSection.appendChild(notesHeading);
+
+            const notesList = document.createElement("ul");
+            notesList.className = "category-notes__list";
+            notes.forEach((note) => {
+                const item = document.createElement("li");
+                item.className = "category-notes__item";
+
+                if (note.text) {
+                    const textParagraph = document.createElement("p");
+                    textParagraph.className = "category-notes__text";
+                    textParagraph.textContent = note.text;
+                    item.appendChild(textParagraph);
+                }
+
+                if (note.code) {
+                    const pre = document.createElement("pre");
+                    pre.className = "category-notes__code";
+                    const codeElement = document.createElement("code");
+                    if (note.language) {
+                        codeElement.dataset.language = note.language;
+                    }
+                    codeElement.textContent = note.code;
+                    pre.appendChild(codeElement);
+                    item.appendChild(pre);
+                }
+
+                notesList.appendChild(item);
+            });
+            notesSection.appendChild(notesList);
+
+            panel.appendChild(notesSection);
+        }
+
+        const testsSection = renderFunctionTests ? renderFunctionTests(key) : null;
+        if (testsSection) {
+            if (testsHost) {
+                testsSections.set(key, testsSection);
+            } else {
+                panel.appendChild(testsSection);
+            }
         }
 
         panelsFragment.appendChild(panel);
@@ -126,6 +213,24 @@ document.addEventListener("DOMContentLoaded", () => {
             const shouldShow = panel.id === controls;
             panel.toggleAttribute("hidden", !shouldShow);
         });
+
+        if (testsHost) {
+            const testsKey = tab.dataset.tab;
+            const testsPanel = testsKey ? testsSections.get(testsKey) : null;
+            testsHost.textContent = "";
+            if (testsPanel) {
+                testsHost.appendChild(testsPanel);
+                testsHost.hidden = false;
+                if (testsContainerSection) {
+                    testsContainerSection.hidden = false;
+                }
+            } else {
+                testsHost.hidden = true;
+                if (testsContainerSection) {
+                    testsContainerSection.hidden = true;
+                }
+            }
+        }
 
         conditionalSections.forEach((section) => {
             const allowedTabs = section.dataset.showTab
