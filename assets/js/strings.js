@@ -5,8 +5,8 @@
  */
 if (typeof window.configureFunctionTests === "function") {
     window.configureFunctionTests("strings", {
-        title: "String manipulation challenges: ",
-        intro: "Test each function with different string inputs to see how they behave, including edge cases like empty strings or special characters."
+        title: "String Tasks: ",
+        intro: "Test each function with different string inputs"
     });
 }
 
