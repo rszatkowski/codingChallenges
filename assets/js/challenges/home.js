@@ -11,17 +11,16 @@
     register({
         key: "home",
         label: "Home",
-        icon: "🏠",
         heading: "Getting started",
         description:
             "Pick a category from the sidebar to focus on a specific type of coding challenge.",
-        tasks: ["Strings", "Arrays", "Functions"],
+        tasks: ["Strings", "Placeholder"],
         notes: [
             {
-                text: "Use the tabs on the left to jump between focus areas without scrolling through a long page."
+                text: "Placeholder"
             },
             {
-                text: "Each category highlights a handful of starter tasks and links to hands-on practice once you are ready."
+                text: "Placeholder."
             }
         ]
     });
