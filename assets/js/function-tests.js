@@ -45,6 +45,191 @@
         }
     };
 
+    const tokenizeJavaScript = (code = "") => {
+        const tokens = [];
+        const keywords = new Set([
+            "const",
+            "let",
+            "var",
+            "function",
+            "return",
+            "if",
+            "else",
+            "for",
+            "while",
+            "switch",
+            "case",
+            "break",
+            "continue",
+            "new",
+            "class",
+            "extends",
+            "super",
+            "import",
+            "from",
+            "export",
+            "default",
+            "try",
+            "catch",
+            "finally",
+            "throw"
+        ]);
+        const literals = new Set(["true", "false", "null", "undefined", "NaN", "Infinity"]);
+
+        const isIdentifierStart = (char) => /[A-Za-z_$]/.test(char);
+        const isIdentifierPart = (char) => /[A-Za-z0-9_$]/.test(char);
+        const isDigit = (char) => /[0-9]/.test(char);
+
+        let index = 0;
+        const length = code.length;
+
+        const pushToken = (type, value) => {
+            tokens.push({ type, value });
+        };
+
+        while (index < length) {
+            const char = code[index];
+
+            if (char === "\r") {
+                index += 1;
+                continue;
+            }
+
+            if (/\s/.test(char)) {
+                let start = index;
+                index += 1;
+                while (index < length && /\s/.test(code[index]) && code[index] !== "\r") {
+                    index += 1;
+                }
+                pushToken("plain", code.slice(start, index));
+                continue;
+            }
+
+            if (char === "'" || char === '"' || char === "`") {
+                const quote = char;
+                let value = quote;
+                index += 1;
+                let isClosed = false;
+                while (index < length) {
+                    const current = code[index];
+                    value += current;
+                    index += 1;
+                    if (current === "\\" && index < length) {
+                        value += code[index];
+                        index += 1;
+                        continue;
+                    }
+                    if (current === quote) {
+                        isClosed = true;
+                        break;
+                    }
+                }
+                if (!isClosed && index === length) {
+                    value += code.slice(index);
+                    index = length;
+                }
+                pushToken("string", value);
+                continue;
+            }
+
+            if (char === "/" && index + 1 < length) {
+                const next = code[index + 1];
+                if (next === "/") {
+                    let start = index;
+                    index += 2;
+                    while (index < length && code[index] !== "\n") {
+                        index += 1;
+                    }
+                    pushToken("comment", code.slice(start, index));
+                    continue;
+                }
+                if (next === "*") {
+                    let start = index;
+                    index += 2;
+                    while (index + 1 < length && !(code[index] === "*" && code[index + 1] === "/")) {
+                        index += 1;
+                    }
+                    if (index + 1 < length) {
+                        index += 2;
+                    } else {
+                        index = length;
+                    }
+                    pushToken("comment", code.slice(start, index));
+                    continue;
+                }
+            }
+
+            if (isDigit(char) || (char === "." && isDigit(code[index + 1] || ""))) {
+                let start = index;
+                index += 1;
+                while (index < length && /[0-9._eE]/.test(code[index])) {
+                    index += 1;
+                }
+                pushToken("number", code.slice(start, index));
+                continue;
+            }
+
+            if (isIdentifierStart(char)) {
+                let start = index;
+                index += 1;
+                while (index < length && isIdentifierPart(code[index])) {
+                    index += 1;
+                }
+                const identifier = code.slice(start, index);
+                if (keywords.has(identifier)) {
+                    pushToken("keyword", identifier);
+                } else if (literals.has(identifier)) {
+                    pushToken("literal", identifier);
+                } else {
+                    pushToken("identifier", identifier);
+                }
+                continue;
+            }
+
+            pushToken("operator", char);
+            index += 1;
+        }
+
+        return tokens;
+    };
+
+    const highlightCodeSnippet = (code, language) => {
+        if (!code) {
+            return "";
+        }
+        if (!language) {
+            return escapeHTML(code);
+        }
+
+        const normalized = String(language).toLowerCase();
+        if (normalized === "js" || normalized === "javascript") {
+            const tokens = tokenizeJavaScript(code);
+            return tokens
+                .map((token) => {
+                    const escaped = escapeHTML(token.value);
+                    switch (token.type) {
+                        case "keyword":
+                            return `<span class="token token-keyword">${escaped}</span>`;
+                        case "string":
+                            return `<span class="token token-string">${escaped}</span>`;
+                        case "number":
+                            return `<span class="token token-number">${escaped}</span>`;
+                        case "literal":
+                            return `<span class="token token-literal">${escaped}</span>`;
+                        case "comment":
+                            return `<span class="token token-comment">${escaped}</span>`;
+                        case "operator":
+                            return `<span class="token token-operator">${escaped}</span>`;
+                        default:
+                            return escaped;
+                    }
+                })
+                .join("");
+        }
+
+        return escapeHTML(code);
+    };
+
     const createOutputBlock = (label, emptyMessage) => {
         const wrapper = document.createElement("div");
         wrapper.className = "test-output test-output--info";
@@ -64,7 +249,7 @@
         return { wrapper, value };
     };
 
-    const createCodeToggle = (code, toggleId) => {
+    const createCodeToggle = (code, toggleId, language) => {
         if (!code) {
             return null;
         }
@@ -82,7 +267,9 @@
         container.hidden = true;
 
         const pre = document.createElement("pre");
-        pre.innerHTML = `<code>${escapeHTML(code)}</code>`;
+        const highlighted = highlightCodeSnippet(code, language || "js");
+        const languageAttr = language ? ` data-language="${escapeHTML(language)}"` : "";
+        pre.innerHTML = `<code${languageAttr}>${highlighted}</code>`;
         pre.setAttribute("aria-hidden", "true");
         container.appendChild(pre);
 
@@ -221,7 +408,7 @@
         body.appendChild(output);
 
         const codeId = `${test.id}-code`;
-        const toggle = createCodeToggle(test.code, codeId);
+        const toggle = createCodeToggle(test.code, codeId, test.language);
         if (toggle) {
             body.appendChild(toggle.button);
             body.appendChild(toggle.container);
@@ -483,11 +670,17 @@
                 ? testConfig.fn.toString().trim()
                 : run.toString().trim();
 
+        const language =
+            typeof testConfig.language === "string" && testConfig.language.trim()
+                ? testConfig.language.trim()
+                : "js";
+
         const stored = {
             ...testConfig,
             id,
             code,
-            run
+            run,
+            language
         };
 
         existing.push(stored);

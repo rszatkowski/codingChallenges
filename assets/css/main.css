@@ -13,6 +13,14 @@
     --border-color: #dce1f4;
     --code-background: #1e1e2f;
     --code-text-color: #f8f9ff;
+    --code-inline-background: rgba(76, 110, 245, 0.12);
+    --code-inline-text-color: #273469;
+    --code-token-keyword: #82aaff;
+    --code-token-string: #c3e88d;
+    --code-token-number: #f78c6c;
+    --code-token-literal: #ffcb6b;
+    --code-token-operator: #89ddff;
+    --code-token-comment: #5c6370;
 }
 
 * {
@@ -218,11 +226,50 @@ textarea {
     overflow-x: auto;
     font-family: "Fira Code", "Source Code Pro", Consolas, "Courier New", monospace;
     font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .category-notes__code code {
     display: block;
     white-space: pre;
+}
+
+.category-notes__code .token {
+    font-family: inherit;
+}
+
+.category-notes__code .token-keyword {
+    color: var(--code-token-keyword);
+}
+
+.category-notes__code .token-string {
+    color: var(--code-token-string);
+}
+
+.category-notes__code .token-number {
+    color: var(--code-token-number);
+}
+
+.category-notes__code .token-literal {
+    color: var(--code-token-literal);
+}
+
+.category-notes__code .token-operator {
+    color: var(--code-token-operator);
+}
+
+.category-notes__code .token-comment {
+    color: var(--code-token-comment);
+    font-style: italic;
+}
+
+.category-notes__text code {
+    background-color: var(--code-inline-background);
+    color: var(--code-inline-text-color);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.4rem;
+    font-family: "Fira Code", "Source Code Pro", Consolas, "Courier New", monospace;
+    font-size: 0.85rem;
 }
 
 .category-notes__list li {
@@ -496,6 +543,42 @@ textarea {
 
 .test-code pre {
     margin: 0;
+}
+
+.test-code code {
+    display: block;
+    white-space: pre;
+    font-family: "Fira Code", "Source Code Pro", Consolas, "Courier New", monospace;
+    font-size: 0.9rem;
+}
+
+.test-code .token {
+    font-family: inherit;
+}
+
+.test-code .token-keyword {
+    color: var(--code-token-keyword);
+}
+
+.test-code .token-string {
+    color: var(--code-token-string);
+}
+
+.test-code .token-number {
+    color: var(--code-token-number);
+}
+
+.test-code .token-literal {
+    color: var(--code-token-literal);
+}
+
+.test-code .token-operator {
+    color: var(--code-token-operator);
+}
+
+.test-code .token-comment {
+    color: var(--code-token-comment);
+    font-style: italic;
 }
 
 @media (max-width: 900px) {

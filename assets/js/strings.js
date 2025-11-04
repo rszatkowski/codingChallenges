@@ -36,6 +36,14 @@ function skipFirstCharacter(text) {
     return text.substring(1);
 }
 
+function interpolateString(name){
+    return `Hello, ${name}!`;
+}
+
+function capitalize(word) {
+  return word[0].toUpperCase() + word.toLowerCase().substring(1)
+}
+
 
 // Registration helper for string function tests
 const registerFunctionTestRef =
@@ -86,7 +94,7 @@ const stringTestDefinitions = [
     {
         id: "strings-length-character",
         title: "Task 1: Return the last character",
-        description: "Given any string, return only the final character",
+        description: "Given any string, return length",
         fn: getCharCount
     },
     {
@@ -118,7 +126,20 @@ const stringTestDefinitions = [
         title: "Task 6: Skip the first character",
         description: "Given any string, return the string without its first character.",
         fn: skipFirstCharacter
+    },
+    {
+        id: "strings-interpolate",
+        title: "Task 7: Interpolate string",
+        description: "Given any string, return the string without its first character.",
+        fn: interpolateString
+    }, 
+    {
+        id: "strings-capitalize",
+        title: "Task 8: Capitalize string",
+        description: "Given any string, return the string with capitalized first lettter.",
+        fn: capitalize
     }
+
 ];
 
 
